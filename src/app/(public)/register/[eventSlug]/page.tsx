@@ -1,7 +1,7 @@
 import { getEventBySlug } from "@/lib/server-events"
 import { notFound } from "next/navigation"
 import Image from "next/image"
-import { format } from "date-fns"
+import { safeFormatDate } from "@/lib/utils"
 import { CalendarIcon, MapPinIcon, UsersIcon, Trophy } from "lucide-react"
 import { RegistrationForm } from "@/components/RegistrationForm"
 
@@ -21,7 +21,13 @@ export default async function EventRegistrationPage({ params }: Props) {
   }
 
   // Calculate if registration is open based on deadline
-  const isRegistrationOpen = new Date() <= new Date(event.registrationDeadline)
+  let isRegistrationOpen = false;
+  if (event.registrationDeadline) {
+    const deadlineDate = new Date(event.registrationDeadline);
+    if (!isNaN(deadlineDate.getTime())) {
+      isRegistrationOpen = new Date() <= deadlineDate;
+    }
+  }
   
   return (
     <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
@@ -48,7 +54,7 @@ export default async function EventRegistrationPage({ params }: Props) {
                 <div className="flex flex-wrap gap-4 text-muted-foreground font-medium">
                   <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full">
                     <CalendarIcon className="h-4 w-4 text-primary" />
-                    <span>{format(new Date(event.date), "PPP")} at {event.time}</span>
+                    <span>{safeFormatDate(event.date, "PPP")} at {event.time}</span>
                   </div>
                   <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full">
                     <MapPinIcon className="h-4 w-4 text-primary" />
@@ -92,7 +98,7 @@ export default async function EventRegistrationPage({ params }: Props) {
               {!isRegistrationOpen ? (
                 <div className="p-6 border border-destructive/50 bg-destructive/10 text-destructive rounded-xl text-center shadow-inner">
                   <div className="text-xl font-bold mb-2">Registration Closed</div>
-                  <p>The deadline to register was {format(new Date(event.registrationDeadline), "PPP")}.</p>
+                  <p>The deadline to register was {safeFormatDate(event.registrationDeadline, "PPP")}.</p>
                 </div>
               ) : (
                 <RegistrationForm event={event} />

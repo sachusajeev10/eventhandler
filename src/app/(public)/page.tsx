@@ -1,7 +1,7 @@
 import { getPublishedEvents } from "@/lib/server-events"
 import Link from "next/link"
 import Image from "next/image"
-import { format } from "date-fns"
+import { safeFormatDate } from "@/lib/utils"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CalendarIcon, MapPinIcon } from "lucide-react"
@@ -55,7 +55,7 @@ export default async function HomePage() {
                   </p>
                   <div className="flex items-center text-sm text-muted-foreground">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(new Date(event.date), "MMM d, yyyy")} {event.time ? `at ${event.time}` : ''}
+                    {safeFormatDate(event.date, "MMM d, yyyy")} {event.time ? `at ${event.time}` : ''}
                   </div>
                   <div className="flex items-center text-sm text-muted-foreground">
                     <MapPinIcon className="mr-2 h-4 w-4" />
