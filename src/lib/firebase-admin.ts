@@ -7,14 +7,21 @@ if (!getApps().length) {
     console.error("Missing Firebase Admin credentials. Please create a .env.local file and set FIREBASE_PRIVATE_KEY and FIREBASE_CLIENT_EMAIL.");
   } else {
     try {
+      // Sometimes Vercel env vars include the surrounding quotes if copy-pasted directly from .env
+      let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+      if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+        privateKey = privateKey.slice(1, -1);
+      }
+      privateKey = privateKey.replace(/\\n/g, '\n');
+
       initializeApp({
         credential: cert({
           projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
           clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          // Handle newline characters in private key when loading from env variables
-          privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          privateKey: privateKey,
         }),
       });
+      console.log("Firebase Admin Initialized Successfully");
     } catch (error) {
       console.error('Firebase admin initialization error:', error);
     }
