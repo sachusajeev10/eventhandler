@@ -11,10 +11,17 @@ export async function getPublishedEvents(): Promise<any[]> {
       .orderBy("createdAt", "desc")
       .get()
       
-    return snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data()
-    }))
+    return snapshot.docs.map((doc: any) => {
+      const data = doc.data();
+      // Sanitize Firestore Timestamp objects for Next.js Server Components
+      if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+        data.createdAt = data.createdAt.toDate().toISOString();
+      }
+      if (data.updatedAt && typeof data.updatedAt.toDate === 'function') {
+        data.updatedAt = data.updatedAt.toDate().toISOString();
+      }
+      return { id: doc.id, ...data };
+    })
   } catch (error) {
     console.error("Failed to fetch published events:", error);
     return [];
@@ -34,9 +41,19 @@ export async function getEventBySlug(slug: string): Promise<any> {
     if (snapshot.empty) return null;
     
     const doc = snapshot.docs[0];
+    const data = doc.data();
+    
+    // Sanitize Firestore Timestamp objects for Next.js Server Components
+    if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+      data.createdAt = data.createdAt.toDate().toISOString();
+    }
+    if (data.updatedAt && typeof data.updatedAt.toDate === 'function') {
+      data.updatedAt = data.updatedAt.toDate().toISOString();
+    }
+    
     return {
       id: doc.id,
-      ...doc.data()
+      ...data
     }
   } catch (error) {
     console.error(`Failed to fetch event by slug ${slug}:`, error);
