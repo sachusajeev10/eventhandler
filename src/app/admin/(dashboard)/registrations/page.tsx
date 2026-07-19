@@ -125,7 +125,7 @@ export default function RegistrationsPage() {
         
         <div className="flex items-center gap-4 w-full sm:w-auto">
           {events.length > 0 && (
-            <Select value={selectedEvent} onValueChange={setSelectedEvent}>
+            <Select value={selectedEvent} onValueChange={(val) => setSelectedEvent(val || "")}>
               <SelectTrigger className="w-full sm:w-[300px]">
                 <SelectValue placeholder="Select Event" />
               </SelectTrigger>
